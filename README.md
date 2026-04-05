@@ -1,5 +1,10 @@
 # Clockwork
 
+[![CI](https://github.com/spy16/clockwork/actions/workflows/ci.yml/badge.svg)](https://github.com/spy16/clockwork/actions/workflows/ci.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/spy16/clockwork)](https://goreportcard.com/report/github.com/spy16/clockwork)
+[![GoDoc](https://pkg.go.dev/badge/github.com/spy16/clockwork.svg)](https://pkg.go.dev/github.com/spy16/clockwork)
+[![License](https://img.shields.io/github/license/spy16/clockwork)](./LICENSE)
+
 A distributed, fault-tolerant cron scheduler. Define schedules using standard crontab expressions and Clockwork delivers notification events to your services at the right time via Kafka (or other pluggable channels).
 
 ## Features
