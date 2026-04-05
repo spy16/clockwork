@@ -13,7 +13,7 @@ install:
 	@echo "Installing..."
 	@go install ./cmd/clockwork
 
-build:
+build: update-swagger
 	@echo "Building..."
 	@mkdir -p ${OUT_PATH}
 	@go build -ldflags "-X main.Version=$(VERSION) -X main.Commit=$(COMMIT) -X main.BuiltOn=$(BUILT_ON)" -o ${OUT_PATH}/clockwork ./cmd/clockwork
