@@ -14,6 +14,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "1.25"
+      - run: make update-swagger
       - run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.1.6
       - run: golangci-lint run
 
@@ -30,6 +31,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "1.25"
+      - run: make update-swagger
       - run: go test -race -coverprofile=coverage.out ./...
       - uses: actions/upload-artifact@v4
         with:
