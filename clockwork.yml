@@ -1,0 +1,70 @@
+# HTTP server listen address for the API server.
+addr: 0.0.0.0:8081
+
+# Any updates to the clockwork schedule will be published to this changelog if enabled.
+changelog:
+  enabled: true
+  topic: clockwork_schedule_updates
+  kafka:
+    brokers: localhost:9092 # can be comma separated list.
+    ssl:
+      enabled: false
+      cert: ""
+      key: ""
+      ca_cert: ""
+
+log:
+  # log format to use (json or text)
+  format: text
+
+  # log level to use (debug, info, warn, error, fatal, panic)
+  level: info
+
+# Redis scheduler configuration to use when `--backend=redis`.
+redis_scheduler:
+  # number of workers to run for polling for ready-schedules.
+  workers: 10 
+
+  # poll interval in seconds to check for ready schedules.
+  poll_interval: 300
+
+  # number of schedules to fetch in a single poll.
+  prefetch_count: 1000
+
+  # deadline for processing 1 batch of schedules.
+  reclaim_interval: 3
+
+  # TTL for schedules that have reached DONE state. After this TTL, the schedule will be deleted.
+  done_schedule_ttl: 7 # days
+
+  # Redis client configuration (using go-redis)
+  client:
+    # username: ""
+    # password: ""
+    addr: localhost:6379
+    pool_size: 10
+    min_idle_conns: 3
+    ssl:
+      enabled: false
+      cert: ""
+      key: ""
+      ca_cert: ""      
+
+telemetry:
+  export: true
+  debug_addr: 0.0.0.0:8888
+  statsd_addr: localhost:8125
+  ocagent_addr: localhost:55678
+  sampling_fraction: 1
+  publish_runtime: false
+  report_uptime: true
+
+# Kafka channel configuration.
+kafka:
+  brokers: localhost:9092
+  send_max_retries: 5
+  ssl:
+    enabled: false
+    cert: ""
+    key: ""
+    ca_cert: ""

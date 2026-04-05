@@ -1,0 +1,448 @@
+openapi: "3.0.2"
+
+info:
+  title: Clockwork Service
+  version: '1.0.0'
+  description: |
+    A generic scheduling system.
+
+tags:
+  - name: "schedule"
+    description: "Schedule Management APIs"
+  - name: "client"
+    description: "Client Management APIs"
+
+servers:
+  - url: /
+
+paths:
+  /v1/clients:
+    post:
+      summary: Register a client.
+      description: Registers a new client to interact with Clockwork system.
+      tags:
+        - client
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Client'
+      responses:
+        '201':
+          description: Client created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        '400':
+          description: Invalid reqeust (error codes = `bad_request`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '409':
+          description: A client with the given ID already exists (error codes = `conflict`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal error. (error codes = `internal_error`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+
+  /v1/clients/{clientID}:
+    get:
+      summary: Get Client by ID
+      description: Get the client by client id
+      tags:
+        - client
+      parameters:
+        - in: path
+          name: clientID
+          schema:
+            type: string
+          description: Specifies the ID of the client which needs to be retrieved
+          example: "afh78997"
+          required: true
+      responses:
+        '200':
+          description: Successfully fetched client details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        '404':
+          description: Client not found (error codes = `not_found`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error. (error codes = `internal_error`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+    delete:
+      summary: Delete Client
+      description: Delete a client by clientID
+      tags:
+        - client
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - in: path
+          name: clientID
+          schema:
+            type: string
+          description: Specifies the ID of the client which needs to be deleted
+          example: "afh9697"
+          required: true
+      responses:
+        '204':
+          description: Successfully deleted client.
+        '404':
+          description: client not found (error codes =  `not_found`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error. (error codes = `internal_error`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+
+  /v1/schedules:
+    post:
+      summary: Creates a new schedule
+      description: |
+        Creates a new schedule. The schedule will be created in `ACTIVE` state. 
+
+        If you are using `@every x` or `* * * * *` syntax, the schedule will start at current timestamp
+        and execute recurrently as per the interval/crontab.
+        
+        **NOTE**: If you are using `@at t1,t2,t3` syntax and few/all the trigger points are in the
+        past, all such points will be collapsed to current timestamp and the schedule will start 
+        immediately from that point.
+      tags:
+        - schedule
+      security:
+        - basicAuth: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Schedule'
+      responses:
+        '201':
+          description: Schedule created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schedule'
+        '400':
+          description: Bad request (error codes = `bad_request`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '409':
+          description: A schedule with the requested ID already exists (error codes = `conflict`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal error. (error codes = `internal_error`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+
+  /v1/schedules/{scheduleID}:
+    get:
+      summary: Get Schedule
+      description: Get the Schedule by requested scheduleID
+      tags:
+        - schedule
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - in: path
+          name: scheduleID
+          schema:
+            type: string
+          description: Specifies the ID of the schedule which needs to be retrieved
+          example: "b97f8dc8-9129-11eb-a8b3-0242ac130003"
+          required: true
+      responses:
+        '200':
+          description: Successfully fetched schedule details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schedule'
+        '404':
+          description: Schedule not found (error codes = `not_found`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error. (error codes = `internal_error`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+    patch:
+      summary: Update an existing schedule.
+      description: |
+        Update an existing schedule. Schedule can be updated in any state.
+
+        If schedule is in `DISABLED` state, it will not be executed until it is enabled again.
+
+        **WARNING**: When updating, if you are using `@at t1,t2,t3` syntax, all trigger points 
+        in the past relative to current timestamp will be dropped.
+      tags:
+        - schedule
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - in: path
+          name: scheduleID
+          schema:
+            type: string
+            description: Specifies the ID of the schedule which needs to be updated
+            example: "b97f8dc8-9129-11eb-a8b3-0242ac130003"
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleUpdate'
+      responses:
+        '200':
+          description: Successfully updated schedule details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schedule'
+        '400':
+          description: Bad request (error codes = `bad_request`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '404':
+          description: Schedule not found (error codes = `internal_error`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error. (error codes = `internal_error`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+    delete:
+      summary: Delete Schedule
+      description: Delete the Schedule by requested scheduleID
+      tags:
+        - schedule
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - in: path
+          name: scheduleID
+          schema:
+            type: string
+          description: Specifies the ID of the schedule which needs to be deleted
+          example: "b97f8dc8-9129-11eb-a8b3-0242ac130003"
+          required: true
+      responses:
+        204:
+          description: Successfully deleted schedule.
+        403:
+          description: Client making the request is not authorised to delete. (error code = `unauthorized`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        404:
+          description: Schedule not found (error codes =  `not_found`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        500:
+          description: Internal server error. (error codes = `internal_error`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+
+components:
+  securitySchemes:
+    basicAuth: # <-- arbitrary name for the security scheme
+      type: http
+      scheme: basic
+
+  schemas:
+    Client:
+      type: object
+      required:
+        - channel_type
+        - channel_name
+      properties:
+        id:
+          type: string
+          example: "sdf6s8768"
+          description: A unique identifier for the client (Auto generated if not provided).
+        secret:
+          type: string
+          example: "6safd78DFS88"
+          description: |
+            Client secret to be used for authenticating client requests. Secret must be at-least
+            10 characters. It will be auto generated if not provided.
+        channel_type:
+          type: string
+          example: "kafka"
+          description: |
+            Channel type to be used for publishing execution events. Supported types are `kafka` and `log`.
+            Note: `log` is only meant for debugging.
+        channel_name:
+          type: string
+          example: "clockwork-events"
+          description: |
+            An identifier/name for the channel of given type. In case of `channel_type=kafka`, this
+            corresponds to the topic.
+        created_at:
+          type: string
+          example: "2021-03-30T07:20:50.52Z"
+          description: The time at which the client was created.
+          readOnly: true
+        updated_at:
+          type: string
+          example: "2021-03-30T07:20:50.52Z"
+          description: The time at which the client was last updated.
+          readOnly: true
+
+    Schedule:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "b97f8dc8-9129-11eb-a8b3-0242ac130003"
+          description: A unique identifier for the schedule.
+        tags:
+          type: array
+          example: [ "my-service", "opt-in" ]
+          description: Meta tags associcated with the schedule.
+          items:
+            type: string
+        crontab:
+          type: string
+          example: "@at 16789339,16494750"
+          description: The points of execution of the schedule.
+        triggers:
+          type: array
+          example: [ 123443624, 123443324, 123643324 ]
+          description: All the trigger points manually added using Update API.
+          readOnly: true
+          items:
+            type: integer
+        category:
+          type: string
+          example: "random"
+        client_id:
+          type: string
+          example: "my-service"
+          description: The client which requested the schedule.
+          readOnly: true
+        payload:
+          type: string
+          description: |
+            Arbitrary payload string provided by the client which will be sent to the channel
+            on schedule execution.
+        status:
+          type: string
+          example: "enabled"
+          description: Reflects the status - `ACTIVE`, `DISABLED` and `DONE`.
+          readOnly: true
+        version:
+          type: integer
+          example: 1
+          description: The upgrade version of the schedule.
+          readOnly: true
+        created_at:
+          type: string
+          example: "2021-03-30T07:20:50.52Z"
+          description: The times at which the schedule was created.
+          readOnly: true
+        updated_at:
+          type: string
+          example: "2021-03-30T07:20:50.52Z"
+          description: The time at which the schedule was last updated.
+          readOnly: true
+        enqueue_count:
+          type: integer
+          example: 3
+          description: |
+            The number of times a new execution point was added for the schedule. 
+
+            Note: This is NOT the number of times the schedule was executed. 
+            If you want, number of executions already done, it will be `enqueue_count - 1`
+          readOnly: true
+        last_enqueued_at:
+          type: string
+          example: "2021-03-30T07:20:50.52Z"
+          description: |
+            The time at which upcoming execution will occur if the schedule is in `ACTIVE` state.
+
+            Note: This is NOT the time at which the schedule was last executed. This field simply
+            represents the timestamp that was used in the last enqueue (for the next execution).
+          readOnly: true
+
+    FailureResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "error_code"
+        message:
+          type: string
+          example: "error message"
+        cause:
+          type: string
+          example: "cause of the error"
+
+    ScheduleUpdate:
+      type: object
+      properties:
+        disable:
+          type: boolean
+          example: false
+          description: Disable/Enable the schedule.
+        crontab:
+          type: string
+          example: "@at 16789339,16494750"
+          description: The points of execution of the schedule.
+        category:
+          type: string
+          example: "random"
+        trigger:
+          type: integer
+          example: "16784848"
+          description: Add one point of execution to the schedule.
+        tags:
+          type: array
+          example: [ "my-service", "opt-in" ]
+          description: Replace tags associated with the schedule.
+          items:
+            type: string

@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package in.spy16.clockwork.events;
+option go_package = "./proto";
+option java_package = "in.spy16.clockwork";
+option java_multiple_files = true;
+option java_outer_classname = "ExecutionEvent";
+
+import "google/protobuf/timestamp.proto";
+
+
+// ExecutionEventKey is used as the partition key when publishing an
+// ExecutionEvent. This key ensures that the events from a single schedule
+// are published to the same partition. This also ensures the execution
+// events are received in-order by the consumer.
+message ExecutionEventKey {
+  // Identifier for the schedule that generated this execution event.
+  string schedule_id = 1;
+}
+
+// ExecutionEvent is emitted whenever a schedule is ready for execution. This
+// can be consumed by external workers that need to take some action as per the
+// schedule.
+message ExecutionEvent {
+  // Identifier for the schedule that generated this execution event.
+  string schedule_id = 1;
+
+  // The category value set on the schedule.
+  string category = 2;
+
+  // Time at which the execution is expected as per the schedule.
+  google.protobuf.Timestamp execute_at = 3;
+
+  // Flag indicating whether this execution was manually requested
+  // using update-schedule API or was generated as per the crontab.
+  bool manually_enqueued = 4;
+
+  // A serial number indicating the index of the request in schedule's
+  // timeline. First execution will start with 1.
+  int64 execution_number = 5;
+
+  // Arbitrary payload configured on the schedule definition.
+  string payload = 6;
+}
+
+enum ScheduleChangeType {
+  UNKNOWN = 0;
+  CREATED = 1;
+  UPDATED = 2;
+  DELETED = 3;
+}
+
+message Schedule {
+  string schedule_id = 1;
+  string crontab = 2;
+  string category = 3;
+  string client_id = 4;
+  repeated string tags = 5;
+  string payload = 6;
+  string status = 7;
+
+  string json_dump = 100;
+}
+
+message ScheduleChangeEventKey {
+  string schedule_id = 1;
+  string client_id = 2;
+}
+
+// ScheduleChangeEvent is published when any mutating operation is done.
+// Operations include create, update and delete.
+message ScheduleChangeEvent {
+  ScheduleChangeType change_type = 1;
+  Schedule schedule = 2;
+  google.protobuf.Timestamp done_at = 3;
+}
