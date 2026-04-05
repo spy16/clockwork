@@ -35,7 +35,7 @@ func Test_clientAuth(t *testing.T) {
 		mw := clientAuth(clientSvc, false)
 
 		h := mw(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("response from handler"))
+			_, _ = w.Write([]byte("response from handler"))
 		}))
 
 		w := httptest.NewRecorder()
@@ -57,7 +57,7 @@ func Test_clientAuth(t *testing.T) {
 		mw := clientAuth(clientSvc, false)
 
 		h := mw(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("response from handler"))
+			_, _ = w.Write([]byte("response from handler"))
 		}))
 
 		w := httptest.NewRecorder()
@@ -86,7 +86,7 @@ func Test_clientAuth(t *testing.T) {
 		mw := clientAuth(clientSvc, false)
 
 		h := mw(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("response from handler"))
+			_, _ = w.Write([]byte("response from handler"))
 		}))
 
 		w := httptest.NewRecorder()

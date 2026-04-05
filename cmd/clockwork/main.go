@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"math/rand"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -40,8 +39,6 @@ using crontab, clockwork makes it happen.`,
 )
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
-
 	chdirIfNeeded()
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)

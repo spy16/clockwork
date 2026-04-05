@@ -17,9 +17,7 @@ func WrapRedis(client redis.UniversalClient) redis.UniversalClient {
 	return client
 }
 
-type redisHook struct {
-	addr string
-}
+type redisHook struct{}
 
 func (rw *redisHook) BeforeProcess(ctx context.Context, cmd redis.Cmder) (context.Context, error) {
 	ctx, span := trace.StartSpan(ctx, operationName(cmd))

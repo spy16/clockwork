@@ -73,7 +73,7 @@ func TestParse(t *testing.T) {
 func assertCronResult(t *testing.T, want []time.Time, schedule cron.Schedule) {
 	if len(want) == 0 {
 		assert.True(t, schedule == nil ||
-			schedule.Next(time.Now()) == time.Time{},
+			schedule.Next(time.Now()).Equal(time.Time{}),
 			"schedule must be nil or have no activation point",
 		)
 		return

@@ -20,7 +20,7 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	os.Setenv("DISABLE_PANIC_RECOVERY", "true") // disable panic recovery middleware for tests.
+	_ = os.Setenv("DISABLE_PANIC_RECOVERY", "true") // disable panic recovery middleware for tests.
 	os.Exit(m.Run())
 }
 

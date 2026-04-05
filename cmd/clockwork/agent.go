@@ -152,11 +152,11 @@ func setupStorageBackend(spec string) (schedule.Scheduler, client.Store) {
 		specRedis = "redis"
 	)
 
-	switch {
-	case spec == specInMem:
+	switch spec {
+	case specInMem:
 		return &inmem.Scheduler{}, &inmem.ClientStore{}
 
-	case spec == specRedis:
+	case specRedis:
 		return setupRedisBackend()
 
 	default:
